@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  app:
+    build: .
+    environment:
+      DB_HOST: db
+      DB_DATABASE: laraveldb
+      DB_USERNAME: laraveluser
+      DB_PASSWORD: secretpassword
+    volumes:
+      - ./:/var/www/html/
+    depends_on:
+      - db
+
+  web:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+      - ./myapp:/var/www/html/myapp
+    depends_on:
+      - app
+
+volumes:
+  postgres_data:
